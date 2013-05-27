@@ -1,0 +1,399 @@
+add Staff teacher 1 Quyn
+add Staff teacher 2 Sarah
+add Staff teacher 3 Blaze
+add Staff teacher 4 Shafira
+add Staff teacher 5 Arsenio
+add Staff teacher 6 Troy
+add Staff teacher 7 Hu
+add Staff teacher 8 Quyn
+add Staff teacher 9 Piper
+add Staff teacher 10 Maisie
+add Staff teacher 11 Demetria
+add Staff teacher 12 Paul
+add Staff teacher 13 Beck
+add Staff teacher 14 Elton
+add Staff teacher 15 Charde
+add Staff teacher 16 Zenaida
+add Staff teacher 17 Fleur
+add Staff teacher 18 Callie
+add Staff teacher 19 Palmer
+add Staff teacher 20 Addison
+add Staff teacher 21 Travis
+add Staff teacher 22 Illana
+add Staff teacher 23 Leilani
+add Staff teacher 24 Wyoming
+add Staff teacher 25 Derek
+add Staff teacher 26 Oscar
+add Staff teacher 27 Kimberly
+add Staff teacher 28 Dominic
+add Staff teacher 29 Kaden
+add Staff teacher 30 Heidi
+add Staff teacher 31 Inga
+add Staff teacher 32 Desiree
+add Staff teacher 33 Abel
+add Staff teacher 34 Nelle
+add Staff teacher 35 Merritt
+add Staff teacher 36 Kirk
+add Staff teacher 37 Sage
+add Staff teacher 38 Lawrence
+add Staff teacher 39 Madaline
+add Staff teacher 40 Lee
+add Staff teacher 41 Coby
+add Staff teacher 42 Suki
+add Staff teacher 43 Francesca
+add Staff teacher 44 Erin
+add Staff teacher 45 Castor
+add Staff teacher 46 Kane
+add Staff teacher 47 Emery
+add Staff teacher 48 Joshua
+add Staff teacher 49 Melanie
+add Staff teacher 50 Allistair
+add Staff teacher 51 Justine
+add Staff teacher 52 Lareina
+add Staff teacher 53 Jana
+add Staff teacher 54 Basil
+add Staff teacher 55 Kenneth
+add Staff teacher 56 Odysseus
+add Staff teacher 57 Samantha
+add Staff teacher 58 Basia
+add Staff teacher 59 Zenaida
+add Staff teacher 60 Gage
+add Staff teacher 61 John
+add Staff teacher 62 Illiana
+add Staff teacher 63 Liberty
+add Staff teacher 64 Jonah
+add Staff teacher 65 Brian
+add Staff teacher 66 Dieter
+add Staff teacher 67 Amena
+add Staff teacher 68 Wendy
+add Staff teacher 69 Shana
+add Staff teacher 70 Mercedes
+add Staff teacher 71 Kelly
+add Staff teacher 72 Anne
+add Staff teacher 73 Kevyn
+add Staff teacher 74 Slade
+add Staff teacher 75 Grant
+add Staff teacher 76 Nora
+add Staff teacher 77 Hall
+add Staff teacher 78 Meghan
+add Staff teacher 79 Colette
+add Staff teacher 80 Alma
+add Staff teacher 81 Nell
+add Staff teacher 82 Ocean
+add Staff teacher 83 Lunea
+add Staff teacher 84 Cara
+add Staff teacher 85 Robin
+add Staff teacher 86 Calvin
+add Staff teacher 87 Sydnee
+add Staff teacher 88 Mari
+add Staff teacher 89 Daria
+add Staff teacher 90 Stephen
+add Staff teacher 91 Yardley
+add Education course C1 MEI
+add Education course C2 MI
+add Education course C3 MSI
+add Education course C4 CEI 
+add Education course C5 MBBC
+add Education course C6 MBC
+add Education course C7 MBED
+add Education course C8 MBHA
+add Education course C9 MCM
+add Education course C10 MEGA
+add Education course C11 MEM
+add Education course C12 MBMG
+add Education course C13 MMA
+add Education course C14 MCG
+add Education course C15 MEG
+add Education course C16 MSIG
+add Education course C17 MBE
+add Education course C18 MEIO
+add Education course C19 MGI
+add Education course C20 MMAEG
+add Education course C21 CEFQ
+add Education course C22 MF
+add Education course C23 MGARQ
+add Education course C24 MG
+add Education course C25 MGA
+add Education course C26 MGARGOT
+add Education course C27 MGE
+add Education course C28 CEBG
+add Education course C29 CEM
+add Education course C30 MM
+add Education course C31 MMF
+add Education course C32 MMP
+add Education course C33 MBQ
+add Education course C34 MQ
+add Education course C34 MQIB
+add Education course C34 MQT
+add Education course C35 MHFC
+add Spaces room R1 LAB 20
+add Spaces room R2 LAB 30
+add Spaces room R3 LAB 30
+add Spaces room R4 LAB 38
+add Spaces room R5 LAB 40
+add Spaces room R6 LAB 48
+add Spaces room R7 LAB 50
+add Spaces room R8 LAB 50
+add Spaces room R9 LAB 60
+add Spaces room R10 LAB 28
+add Spaces room R11 LAB 58
+add Spaces room R12 LAB 40
+add Spaces room R13 LAB 60
+add Spaces room L200 LAB 200
+add Spaces room R14 LECTURE 100
+add Spaces room R15 LECTURE 50
+add Spaces room R16 LECTURE 70
+add Spaces room R17 LECTURE 150
+add Spaces room R18 LECTURE 40
+add Spaces room R19 LECTURE 60
+add Spaces room R20 LECTURE 30
+add Spaces room R21 LECTURE 120
+add Spaces room R22 LECTURE 80
+add Spaces room R23 LECTURE 50
+add Spaces room R24 LECTURE 200
+add Spaces room R25 LECTURE 180
+add Spaces room R26 LECTURE 40
+add Spaces room R27 LECTURE 40
+add Spaces room R28 LECTURE 60
+add Spaces room R29 LECTURE 30
+add Spaces room R30 LECTURE 30
+add Education group T1 TurmaMEI 60
+add Education group T2 TurmaMEI 45
+add Education group T3 TurmaMEI 27
+add Education group T4 TurmaMEI 32
+add Education group T5 TurmaMI 21
+add Education group T6 TurmaMI 15
+add Education group T7 TurmaMI 29
+add Education group T8 TurmaMSI 19
+add Education group T9 TurmaMSI 33
+add Education group T10 TurmaMSI 25
+add Education group T11 TurmaCEI 10
+add Education group T12 TurmaMBBC 23
+add Education group T13 TurmaMBC 17
+add Education group T14 TurmaMBED 60
+add Education group T15 TurmaMBED 60
+add Education group T16 TurmaMBED 60
+add Education group T17 TurmaMBHA 60
+add Education group T18 TurmaMBHA 49
+add Education group T19 TurmaMCM 10
+add Education group T20 TurmaMEGA 25
+add Education group T21 TurmaMEM 60
+add Education group T22 TurmaMEM 60
+add Education group T23 TurmaMEM 51
+add Education group T24 TurmaMBMG 40
+add Education group T25 TurmaMBMG 40
+add Education group T26 TurmaMBMG 40
+add Education group T27 TurmaMMA 38
+add Education group T28 TurmaMCG 21
+add Education group T29 TurmaMEG 30
+add Education group T30 TurmaMSIG 38
+add Education group T31 TurmaMBE 30
+add Education group T32 TurmaMEIO 47
+add Education group T33 TurmaMEIO 47
+add Education group T34 TurmaMGI 22
+add Education group T35 TurmaMMAEG 25
+add Education group T36 TurmaCEFQ 20
+add Education group T37 TurmaMF 42
+add Education group T38 TurmaMF 42
+add Education group T39 TurmaMGARQ 18
+add Education group T40 TurmaMG 20
+add Education group T41 TurmaMGA 22
+add Education group T42 TurmaMGARGOT 45
+add Education group T43 TurmaMGARGOT 45
+add Education group T44 TurmaMGE 15
+add Education group T45 TurmaCEBG 30
+add Education group T46 TurmaCEM 40
+add Education group T47 TurmaMM 60
+add Education group T48 TurmaMMF 50
+add Education group T49 TurmaMMP 20
+add Education group T50 TurmaMBQ 38
+add Education group T51 TurmaMBQ 38
+add Education group T52 TurmaMQ 35
+add Education group T53 TurmaMQ 35
+add Education group T54 TurmaMQIB 30
+add Education group T55 TurmaMQT 25
+add Education group T56 TurmaMHFC 20
+add Education class 1 C1 4 LAB T1 T2 T3 T4
+add Education class 5 C1 2 LAB  T1 T2 T3 T4
+add Education class 3 C1 2 LAB  T1 T2 T3 T4
+add Education class 7 C1 3 LAB  T1 T2 T3 T4
+add Education class 8 C1 3 LAB  T1 T2 T3 T4
+add Education class 4 C2 3 LAB  T5 T6 T7
+add Education class 6 C2 3 LAB  T5 T6 T7
+add Education class 2 C2 2 LAB  T5 T6 T7
+add Education class 6 C2 4  LAB T5 T6 T7
+add Education class 8 C2 4  LAB T5 T6 T7
+add Education class 1 C3 2  LAB T8 T9 T10
+add Education class 3 C3 3  LAB T8 T9 T10
+add Education class 1 C3 4  LAB T8 T9 T10
+add Education class 8 C3 4  LAB T8 T9 T10
+add Education class 1 C3 4  LAB T8 T9 T10
+add Education class 2 C4 3  LAB T11
+add Education class 3 C4 3  LAB T11
+add Education class 8 C4 3  LAB T11
+add Education class 9 C4 3  LAB T11
+add Education class 9 C4 4  LAB T11
+add Education class 10 C5 4  LAB T12 
+add Education class 11 C5 3  LAB T12 
+add Education class 5 C5 4  LAB T12 
+add Education class 8 C5 4  LAB T12 
+add Education class 6 C5 3  LAB T12 
+add Education class 10 C6 4  LAB T13
+add Education class 11 C6 4  LAB T13
+add Education class 12 C6 4  LAB T13
+add Education class 12 C6 3  LAB T13
+add Education class 13 C6 3  LAB T13
+add Education class 10 C7 4  LAB T14 T15 T16
+add Education class 14 C7 3  LAB T14 T15 T16
+add Education class 15 C7 4  LAB T14 T15 T16
+add Education class 16 C7 3  LAB T14 T15 T16
+add Education class 16 C7 4  LAB T14 T15 T16
+add Education class 10 C8 4  LAB T17 T18
+add Education class 15 C8 4  LAB T17 T18
+add Education class 15 C8 4  LAB T17 T18
+add Education class 16 C8 3  LAB T17 T18
+add Education class 17 C8 3  LAB T17 T18
+add Education class 10 C9 4  LAB T19
+add Education class 14 C9 4  LAB T19
+add Education class 16 C9 4  LAB T19
+add Education class 18 C9 3  LAB T19
+add Education class 19 C9 3  LAB T19
+add Education class 10 C10 4  LAB T20
+add Education class 10 C10 4  LAB T20
+add Education class 12 C10 3  LAB T20
+add Education class 18 C10 3  LAB T20
+add Education class 19 C10 4  LAB T20
+add Education class 10 C11 4  LAB T21 T22 T23
+add Education class 12 C11 3  LAB T21 T22 T23
+add Education class 18 C11 4  LAB T21 T22 T23
+add Education class 19 C11 4 LECTURE T21 T22 T23
+add Education class 19 C11 3  LECTURE T21 T22 T23
+add Education class 10 C12 4  LECTURE T24 T25 T26
+add Education class 15 C12 3  LECTURE T24 T25 T26
+add Education class 15 C12 4  LECTURE  T24 T25 T26
+add Education class 16 C12 4  LECTURE T24 T25 T26
+add Education class 20 C12 3  LECTURE T24 T25 T26
+add Education class 10 C13 4  LECTURE T27
+add Education class 16 C13 3  LECTURE T27
+add Education class 19 C13 4 LECTURE T27
+add Education class 21 C13 4 LECTURE T27
+add Education class 21 C13 3 LECTURE T27
+add Education class 22 C14 4 LECTURE T28
+add Education class 23 C14 3 LECTURE T28
+add Education class 24 C14 4 LECTURE T28
+add Education class 25 C14 4 LECTURE T28
+add Education class 26 C14 3 LECTURE T28
+add Education class 25 C15 4 LECTURE T29
+add Education class 26 C15 3 LECTURE T29
+add Education class 27 C15 4 LECTURE T29
+add Education class 28 C15 4 LECTURE T29
+add Education class 29 C15 3 LECTURE T29
+add Education class 29 C16 4 LECTURE T30
+add Education class 29 C16 3 LECTURE T30
+add Education class 30 C16 4 LECTURE T30
+add Education class 31 C16 4 LECTURE T30
+add Education class 32 C16 3 LECTURE T30
+add Education class 14 C17 4 LECTURE T31
+add Education class 33 C17 3 LECTURE T31
+add Education class 34 C17 4 LECTURE T31
+add Education class 35 C17 4 LECTURE T31
+add Education class 36 C17 3 LECTURE T31
+add Education class 36 C18 4 LECTURE T32 T33
+add Education class 37 C18 3 LECTURE T32 T33
+add Education class 38 C18 4 LECTURE T32 T33
+add Education class 39 C18 4 LECTURE T32 T33
+add Education class 39 C18 3 LECTURE T32 T33
+add Education class 37 C19 4 LECTURE T34
+add Education class 39 C19 3 LECTURE T34
+add Education class 40 C19 4 LECTURE T34
+add Education class 41 C19 4 LECTURE T34
+add Education class 42 C19 3 LECTURE T34
+add Education class 43 C20 4 LECTURE T35
+add Education class 44 C20 3 LECTURE T35
+add Education class 44 C20 4 LECTURE T35
+add Education class 45 C20 4 LECTURE T35
+add Education class 46 C20 3 LECTURE T35
+add Education class 47 C21 4 LECTURE T36
+add Education class 47 C21 3 LECTURE T36
+add Education class 48 C21 4 LECTURE T36
+add Education class 49 C21 4 LECTURE T36
+add Education class 50 C21 3 LECTURE T36
+add Education class 50 C22 4 LECTURE T37 T38
+add Education class 51 C22 3 LECTURE T37 T38
+add Education class 52 C22 4 LECTURE T37 T38
+add Education class 52 C22 4 LECTURE T37 T38
+add Education class 53 C22 3 LECTURE T37 T38
+add Education class 25 C23 4 LECTURE T39
+add Education class 28 C23 3 LECTURE T39
+add Education class 53 C23 4 LECTURE T39
+add Education class 54 C23 4 LECTURE T39
+add Education class 55 C23 3 LECTURE T39
+add Education class 26 C24 4 LECTURE T40
+add Education class 55 C24 3 LECTURE T40
+add Education class 56 C24 4 LECTURE T40
+add Education class 57 C24 4 LECTURE T40
+add Education class 58 C24 3 LECTURE T40
+add Education class 58 C25 4 LECTURE T41
+add Education class 59 C25 3 LECTURE T41
+add Education class 59 C25 4 LECTURE T41
+add Education class 60 C25 4 LECTURE T41
+add Education class 61 C25 3 LECTURE T41
+add Education class 26 C26 4 LECTURE T42 T43
+add Education class 28 C26 3 LECTURE T42 T43
+add Education class 55 C26 4 LECTURE T42 T43
+add Education class 62 C26 4 LECTURE T42 T43
+add Education class 63 C26 3 LECTURE T42 T43
+add Education class 26 C27 4 LECTURE T44
+add Education class 40 C27 3 LECTURE T44
+add Education class 55 C27 4 LECTURE T44
+add Education class 60 C27 4 LECTURE T44
+add Education class 63 C27 3 LECTURE T44
+add Education class 26 C28 4 LECTURE T45
+add Education class 10 C28 3 LECTURE T45
+add Education class 58 C28 4 LECTURE T45
+add Education class 9 C28 4 LECTURE T45
+add Education class 63 C28 3 LECTURE T45
+add Education class 38 C29 4 LECTURE T46
+add Education class 38 C29 3 LECTURE T46
+add Education class 39 C29 4 LECTURE T46
+add Education class 9 C29 4 LECTURE T46
+add Education class 64 C29 3 LECTURE T46
+add Education class 39 C30 4 LECTURE T47
+add Education class 64 C30 3 LECTURE T47
+add Education class 65 C30 4 LECTURE T47
+add Education class 66 C30 4 LECTURE T47
+add Education class 67 C30 3 LECTURE T47
+add Education class 67 C31 4 LECTURE T48
+add Education class 68 C31 3 LECTURE T48
+add Education class 68 C31 4 LECTURE T48
+add Education class 69 C31 4 LECTURE T48
+add Education class 70 C31 3 LECTURE T48
+add Education class 9 C32 4 LECTURE T49
+add Education class 69 C32 3 LECTURE T49
+add Education class 70 C32 4 LECTURE T49
+add Education class 71 C32 4 LECTURE T49
+add Education class 72 C32 3 LECTURE T49
+add Education class 15 C32 4 LECTURE T50 T51
+add Education class 73 C32 3 LECTURE T50 T51
+add Education class 74 C32 4 LECTURE T50 T51
+add Education class 75 C32 4 LECTURE T50 T51
+add Education class 76 C32 3 LECTURE T50 T51
+add Education class 76 C33 4 LECTURE T52 T53
+add Education class 77 C33 3 LECTURE T52 T53
+add Education class 78 C33 4 LECTURE T52 T53
+add Education class 79 C33 4 LECTURE T52 T53
+add Education class 79 C33 3 LECTURE T52 T53
+add Education class 77 C34 4 LECTURE T54
+add Education class 80 C34 3 LECTURE T54
+add Education class 81 C34 4 LECTURE T54
+add Education class 81 C34 4 LECTURE T54
+add Education class 82 C34 3 LECTURE T54
+add Education class 82 C35 4 LECTURE T55
+add Education class 83 C35 3 LECTURE T55
+add Education class 84 C35 4 LECTURE T55
+add Education class 85 C35 4 LECTURE T55
+add Education class 86 C35 3 LECTURE T55
+add Education class 87 C36 4 LECTURE T56
+add Education class 88 C36 3 LECTURE T56
+add Education class 89 C36 4 LECTURE T56
+add Education class 90 C36 4 LECTURE T56
