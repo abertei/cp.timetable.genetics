@@ -2,8 +2,11 @@
 #include "entities.h"
 #include "hashing.h"
 #include <stdlib.h>
+#include "output.h" 
+#include "genetics.h"
 #include <stdio.h> 
 #include <time.h> 
+#include <string.h>
 #include "main.h" 
 #include "hash.h"
 #include <mpi.h>
@@ -25,12 +28,7 @@ void add_to_best(int index);
 
 
 void print_best(); 
-struct sigaction setup_action;
-sigset_t block_mask;
 
-void intHandler(int dummy) {
-  stop =1;
-}
 
 int init_population(unsigned chromosomes_size_, int replace_by_generation_,unsigned track_best_, 
 	Chromosome* prototype_
@@ -72,6 +70,12 @@ int init_population(unsigned chromosomes_size_, int replace_by_generation_,unsig
     best_flags[i] = 0; 
   }  
 
+  // initialize new population with chromosomes randomly built using prototype
+  for (i = 0 ; i < chromosomes_size ; i++){
+    chromosomes[i] = create_chromo_by_proto(prototype); 
+    add_to_best(i); 
+  }
+
   return 0; 
 }
 
@@ -93,203 +97,197 @@ Chromosome **create_offsprings(){
 
 static pthread_mutex_t lock_stop = PTHREAD_MUTEX_INITIALIZER; 
 int to_stop = 0; 
-double fitness_stop;
-
-void *check_stop_input_from_master(void *x){
-  MPI_Barrier(WORLD); 
-  pthread_mutex_lock(&lock_stop); 
-  to_stop = 1; 
-  pthread_mutex_unlock(&lock_stop); 
-}
-
+#define USER_STOP 10
+#define REACHED_CRITERIA 1 
 
 void *check_stop_input(void *x){
   while(1){
-    int v; 
-    scanf("%d", &v); 
-    if (v == 0){
+    char input[100];
+    scanf("%s", input); 
+    if (strncmp(input,"stop", 100)==0){
       pthread_mutex_lock(&lock_stop); 
-      to_stop = 1; 
+      to_stop = USER_STOP; 
       pthread_mutex_unlock(&lock_stop); 
     }
   }
 }
 
-int stop(){
-  int v ; 
-  Chromosome* best = chromosomes[best_chromosomes[0]]; 
-  if (best->fitness >= fitness_stop) return 1; 
+float best_fit(){
+  if (chromosomes[best_chromosomes[0]] != NULL) {
+    return chromosomes[best_chromosomes[0]]->fitness; 
+  }
+  return 0.0; 
+}
+Chromosome *get_best(){
+    return chromosomes[best_chromosomes[0]]; 
+}
 
+int stop(float fitness_stop){
+  if (rank !=0) return 0; 
+  if (best_fit() >= fitness_stop) return REACHED_CRITERIA; 
+  int v ; 
   pthread_mutex_lock(&lock_stop); 
   v = to_stop;
   pthread_mutex_unlock(&lock_stop); 
   return v; 
 }
 
-void *start(double s){
-  fitness_stop = s; 
-  pthread_t stop_thread; 
-  if (rank == 0){
+void init_random(){
+  int v = (int) time(NULL) + (rank+1)*1000; 
+  unsigned vv = MurmurHash2(&v, (rank+1)*100, (rank+1)*1000 ); 
+  srand(vv); 
+  printf("%u\n", vv); 
+}
 
+void init_processes(){
+  if (rank == 0){
+    pthread_t stop_thread; 
     pthread_create(&stop_thread, NULL,check_stop_input,NULL); 
   }
-  else{
-    pthread_create(&stop_thread, NULL,check_stop_input_from_master,NULL); 
+  init_random(); 
+}
 
-  }
-  int v = (int) time(NULL) + rank*1000; 
-  printf("Executor is starting . Hit ^C to terminate (Output generated then...) \n");
 
-  unsigned vv = MurmurHash2(&v, rank*100, rank*1000 ); 
-  srand(vv);
-  printf("%d\n", vv); 
-  prototype = init(2,2,80,3); 
-  if (!prototype) {
-    perror(""); 
-    exit(-1);
+void add_received_cromos_to_population(Chromosome **new_cromos, int size){
+  float max=0.0; 
+  int i; 
+  for (i = 0 ; i < size ; i++){
+    if (chromosomes[best_chromosomes[current_best_size -1]]->fitness <= new_cromos[i]->fitness ){
+      if (new_cromos[i]->fitness > max){
+	max = new_cromos[i]->fitness; 
+      }
+      int not_best_i;
+      do {
+	// select chromosome for replacement randomly
+	not_best_i = rand() % (int) chromosomes_size;
+	// protect best chromosomes from replacement
+      } while(best_flags[not_best_i]);
+      release(chromosomes[not_best_i]);
+      chromosomes[not_best_i] = clone_deserialized(new_cromos[i]);
+      add_to_best(not_best_i);
+    }
   }
-  if (init_population(1000,20,10,prototype) <0){
+  printf("Process %d - add %f\n", rank,max); 
+}
+
+void slave_check_stop(void *data, int size){
+  int sum = 0;
+  int i; 
+  unsigned char *array = data;
+  for (i = 0; i < size; ++i) {
+    sum +=  array[i];
+    if (sum != 0 ) return ;
+  }
+  printf("(end) -  Process %d received end signal from master.\n", rank); 
+  fflush(stdout);
+  MPI_Finalize(); 
+  exit(0); 
+}
+
+void sync_period(int master_stop){
+  int  size_send_data;
+  int ps;  MPI_Comm_size(WORLD, &ps);  
+  void *data = serialize_cromos(track_best, best_chromosomes, chromosomes, &size_send_data); 
+  if (master_stop){
+    printf("master sending signal\n"); 
+    //master process sends "sign" to others.. hey we stop .. go home
+    memset(data, 0, size_send_data); 
+  }
+  unsigned char  *recv_buffer = malloc(size_send_data * ps);
+  MPI_Allgather(data, (int) size_send_data, MPI_BYTE, recv_buffer, (int) size_send_data, MPI_BYTE, WORLD); 
+
+  if (rank != 0){
+    //slave processes for sure. Must listen to sign 
+    slave_check_stop(recv_buffer, size_send_data);
+  }
+  free(data); 
+  unsigned received_cromos; 
+  unsigned process_index =0; 
+  unsigned char *rcv_buffer_ptr = recv_buffer;  
+
+  for (process_index= 0; process_index < ps ; process_index++){
+    if (process_index != rank) { 
+      Chromosome **new_cromos = deserialize_cromos(rcv_buffer_ptr, &received_cromos);
+      add_received_cromos_to_population(new_cromos, received_cromos); 
+      rcv_buffer_ptr += size_send_data; 
+      delete_new_cromos(new_cromos, received_cromos);
+    }
+  }
+  free(recv_buffer);
+  Chromosome *best = chromosomes[best_chromosomes[0]]; 
+  printf("(update) - Process %d current generation - after exchange: %d. Best fitness :%f\n", rank, current_generation, best->fitness  );
+}
+
+void next_generation(){
+  Chromosome **offsprings = create_offsprings(); 
+  if (offsprings == NULL) {
     perror("");
     exit(-1);
-  } 
+  }
+  // replace chromosomes of current operation with offspring
+  int j; 
 
-  // initialize new population with chromosomes randomly built using prototype
-  int i = 0;
-  for (i = 0 ; i < chromosomes_size ; i++){
-    chromosomes[i] = create_chromo_by_proto(prototype); 
-    add_to_best(i); 
+  for(j = 0; j < replace_by_generation; j++ ){
+    int ci;
+    do{
+      // select chromosome for replacement randomly
+      ci = rand() % (int) chromosomes_size; 
+      // protect best chromosomes from replacement
+    } while(best_flags[ci]);
+    // replace chromosomes
+    release(chromosomes[ci]); //MEM management 
+    chromosomes[ci] = offsprings[ j ];
+    // try to add new chromosomes in best chromosome group
+    add_to_best( ci );
+  }
+  free(offsprings); 
+  current_generation++;
+}
+
+void end_algorithm(int stop_value){
+  if (rank == 0){
+    //Master finished (do not care why). Send signal to everyone. 
+    sync_period(1); 
+    if (stop_value == REACHED_CRITERIA){
+      printf(" Reached criteria\n"); 
+    }
+    else{
+      printf("User stop'd execution\n"); 
+    }
+  }
+}
+
+void *start(void *args){
+  float stop_fitness = ((sargs *) args)->stop_fitness; 
+  int generation_sync_period = ((sargs *)args)->generation_sync_period; 
+
+  init_processes(); 
+  if (rank == 0){
+    printf("Executor is starting . Hit ^C to terminate (Output generated then...)\n");
+    printf("(config) - Stop fitness : %f\n", stop_fitness); 
+    printf("(config) - Generation Sync Period : %d\n", generation_sync_period); 
   }
 
-  /* double *avg_slots_occupied_best = malloc(sizeof(double) * track_best);  */
-  /* double *avg_slots_occupied_total= malloc(sizeof(double) * chromosomes_size);   */
-  /* int avg_i;  */
+  prototype = init(2,2,80,3); 
+  if (!prototype)  quitp(); 
+
+  if (init_population(1000,20,10,prototype) <0) quitp(); 
 
   current_generation = 0;
-  /* FILE *fp_data = fopen("./results.2", "w+");  */
   
-  while(!stop()){  
-    Chromosome* best = chromosomes[best_chromosomes[0]]; 
-    if ((current_generation % 100) == 0 ){ 
-       printf("Current generation: %d. Best fitness :%f\n", current_generation, best->fitness  );
-       int  size_send_data;
-       int pi =0; 
-       void *data = serialize_cromos(10, best_chromosomes, chromosomes, &size_send_data); 
-       int ps;  MPI_Comm_size(WORLD, &ps);  
-       unsigned char  *recv_buffer = malloc(size_send_data * ps);
-       MPI_Allgather(data, (int) size_send_data, MPI_BYTE, recv_buffer, (int) size_send_data, MPI_BYTE, WORLD); 
-       free(data); 
-       unsigned csd; 
-       unsigned process_index =0; 
-       unsigned char *rcv_buffer_ptr = recv_buffer;  
-       for (process_index= 0; process_index < ps ; process_index++){
-	 Chromosome **new_cromos = deserialize_cromos(rcv_buffer_ptr, &csd);
-	 for (pi = 0 ; pi < 10 ; pi++){
-	  if (chromosomes[best_chromosomes[current_best_size -1]]->fitness <= new_cromos[pi]->fitness ){
-	    int not_best_i;
-	    do {
-	      // select chromosome for replacement randomly
-	      not_best_i = rand() % (int) chromosomes_size;
-	      // protect best chromosomes from replacement
-	    } while(best_flags[not_best_i]);
-	    release(chromosomes[not_best_i]);
-	    //TODO - clone this beast;
-	    chromosomes[not_best_i] = clone_deserialized(new_cromos[pi]);
-	    add_to_best(not_best_i);
-	    }
-	 }
-
-	 //TODO - free remaining stuff; 
-	 rcv_buffer_ptr += size_send_data; 
-	 delete_new_cromos(new_cromos, 10);
-        }
-       free(recv_buffer);
-       best = chromosomes[best_chromosomes[0]]; 
-       printf("Current generation - after exchange: %d. Best fitness :%f\n", current_generation, best->fitness  );
-       fflush(stdout); 
+  int stop_value; 
+  while(! (stop_value = stop(stop_fitness))){  
+    if ((current_generation % generation_sync_period) == 0 ){ 
+      printf("(update) - Process %d current generation: %d. Best fitness :%f\n", rank, current_generation, best_fit());
+	sync_period(0);
      }
-     
-
-    /* if ((current_generation % 300) == 0 ){ */
-    /* for (avg_i = 0; avg_i < current_best_size ; avg_i++){ */
-    /*   Chromosome *c = chromosomes[best_chromosomes[avg_i]];  */
-    /*   int si;  */
-    /*   int total= DAYS_HOURS * DAYS_NUM * cardHashS(global.rooms);  */
-    /*   float occupied = 0.0;  */
-    /*   for (si = 0 ; si <  total; si++){ */
-    /* 	if (Varray_length(c->slots[si].classes_array) > 0){ */
-    /* 	  occupied++;  */
-    /* 	} */
-    /*   } */
-      
-    /*   avg_slots_occupied_best[avg_i] = occupied / total;  */
-    /* } */
-    
-    /* for (avg_i = 0; avg_i < chromosomes_size ; avg_i++){ */
-    /*   Chromosome *c = chromosomes[avg_i];  */
-    /*   int si;  */
-    /*   int total= DAYS_HOURS * DAYS_NUM * cardHashS(global.rooms);  */
-    /*   float occupied = 0.0;  */
-    /*   for (si = 0 ; si <  total; si++){ */
-    /* 	if (Varray_length(c->slots[si].classes_array) > 0){ */
-    /* 	  occupied++;  */
-    /* 	} */
-    /*   } */
-    /*   avg_slots_occupied_total[avg_i] =  occupied / total;  */
-    /* } */
-
-    /* #include <gsl/gsl_statistics.h>  */
-    /* double mean, variance, largest, smallest; */
-    /* double *data  = avg_slots_occupied_best;  */
-    /* size_t size =  current_best_size;  */
-    /* mean     = gsl_stats_mean(data, 1, size); */
-    /* variance = gsl_stats_variance(data, 1, size); */
-    /* largest  = gsl_stats_max(data, 1, size); */
-    /* smallest = gsl_stats_min(data, 1, size); */
-    
-    /* fprintf(fp_data,"%d;%g;%g;%g;%g\n", current_generation, mean, variance, largest, smallest); */
-    
-    /* data  = avg_slots_occupied_total;  */
-    /* size =  chromosomes_size;  */
-    /* mean     = gsl_stats_mean(data, 1, size); */
-    /* variance = gsl_stats_variance(data, 1, size); */
-    /* largest  = gsl_stats_max(data, 1, size); */
-    /* smallest = gsl_stats_min(data, 1, size); */
-    
-    /* fprintf(fp_data,"%d;%g;%g;%g;%g\n", current_generation, mean, variance, largest, smallest); */
-    /* fflush(fp_data);  */
-
-    // algorithm has reached criteria?
-    if( best->fitness >= 0.99 ){
-      break;
-    }
-
-    Chromosome **offsprings = create_offsprings(); 
-    if (offsprings == NULL) {
-      perror("");
-      exit(-1);
-    }
-    // replace chromosomes of current operation with offspring
-    int j; 
-    for(j = 0; j < replace_by_generation; j++ ){
-
-      int ci;
-      do{
-	// select chromosome for replacement randomly
-	ci = rand() % (int) chromosomes_size; 
-	// protect best chromosomes from replacement
-      } while(best_flags[ci]);
-      // replace chromosomes
-      release(chromosomes[ci]); //MEM management 
-      chromosomes[ci] = offsprings[ j ];
-      // try to add new chromosomes in best chromosome group
-      add_to_best( ci );
-    }
-    free(offsprings); 
-    current_generation++;
+    next_generation(); 
   }
-  if (rank != 0){
-    send_best_to_master(); 
-  }
+  end_algorithm(stop_value); 
+  //Only the master should get here. 
+  printf("Going to print best chromo for file. Fitness: %f ; Generations : %d\n", best_fit(), current_generation); 
+  print(get_best(), "./out.html"); 
+  MPI_Finalize(); 
   return NULL; 
 }
 
@@ -334,103 +332,6 @@ void add_to_best(int index){
   if( current_best_size < track_best )
     current_best_size++;
 }
-
-void print_class(FILE *fp, Varray *classes, int room);
-void html_add_start(FILE *fp);
-void html_add_end(FILE *); 
-
-void print_best(){
-  if (rank != 0) return ; 
-  Chromosome* best = chromosomes[best_chromosomes[0]]; 
-  printf(" Execution stopped. Going to print best chromo for file. Fitness: %f ; Generations : %d\n", best->fitness, current_generation); 
-  FILE *fp =fopen("./out.html", "w+"); 
-  if (!fp) {
-    perror("Could not open file for output:"); 
-    return;
-  }
-  int day, period, room ; 
-
-  html_add_start(fp); 
-  int nr = cardHashS(global.rooms);
-      for (period = 0 ; period < DAYS_HOURS ; period++){
-      fprintf(fp,"<tr class=\"day\">");
-      for (day = 0 ; day < DAYS_NUM ; day++){
-	fprintf(fp, "<td>"); 
-	for (room = 0 ; room <  nr; room++){
-	  int pos = day * nr * DAYS_HOURS + room * DAYS_HOURS + period; 
-	  Varray *classes = best->slots[pos].classes_array; 
-	  if (Varray_length(classes) > 0){
-	    if (Varray_length(classes) > 1){
-	      fprintf(fp,"#conflict#"); 
-	    }
-	    print_class(fp,classes, room);
-	    fprintf(fp, "<hr>"); 
-	  }
-	}
-	fprintf(fp, "</td>"); 
-      }
-      fprintf(fp,"</tr>");
-  }
-  html_add_end(fp); 
-  fclose(fp); 
-  printf("Printed best\n"); 
-}
-
-void print_students(FILE *, Varray * students);
-
-void print_class(FILE *fp, Varray *classes, int room){
-  int i; 
-  Class *c; 
-  int has_next; 
-  char room_id[32]; 
-  sprintf(room_id, "%d", room); 
-  
-  Room *r = searchHashS(global.rooms, room_id); 
-  for (i = 0 , c = Varray_get(classes,i), has_next = ((i+1) <  Varray_length(classes)) ; 
-       i < Varray_length(classes); 
-       i ++ , c = Varray_get(classes,i), has_next = ((i+1) <  Varray_length(classes))){
-    fprintf(fp,"Class %d ", c->class_id); 
-    fprintf(fp, "with teacher %s for class", c->teacher_id); 
-    print_students(fp,c->students); 
-    fprintf(fp, " @  %s", r->idd); 
-    if (has_next){
-      fprintf(fp, " # "); 
-    }
-  }
-}
-
-void print_students(FILE *fp, Varray * students){
-  int i; 
-  char *s; 
-  int has_next; 
-  if (Varray_length(students) > 1 ){
-    fprintf(fp, "("); 
-  }
-  
-  for (i = 0 , s = Varray_get(students,i), has_next = ((i+1) <  Varray_length(students)) ; 
-       i < Varray_length(students); 
-       i ++ , s = Varray_get(students,i), has_next = ((i+1) <  Varray_length(students))){
-    fprintf(fp, "%s", s);
-    if ( has_next)
-      fprintf(fp, ","); 
-  }
-
-  if (Varray_length(students) > 1 ){
-    fprintf(fp, ")"); 
-  }
-}
-
-void html_add_start(FILE *fp){
-const char *head = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n<link href=\"css/screen.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen, projection\" />\n<link href=\"css/print.css\" rel=\"stylesheet\" type=\"text/css\" media=\"print\" />\n<title>Calendar</title>\n</head>\n<body>\n<table cellspacing=\"0\", border=1>\n\t<caption>January 2079</caption>\n\t<colgroup>\n\t\t<col class=\"Mon\" />\n\t\t<col class=\"Tue\" />\n\t\t<col class=\"Wed\" />\n\t\t<col class=\"Thu\" />\n\t\t<col class=\"Fri\" />\n\t</colgroup>\n\t<thead>\n\t\t<tr>\n\t\t\t<th scope=\"col\">Monday</th>\n\t\t\t<th scope=\"col\">Tuesday</th>\n\t\t\t<th scope=\"col\">wednesday</th>\n\t\t\t<th scope=\"col\">Thursday</th>\n\t\t\t<th scope=\"col\">Friday</th>\n\t\t</tr>\n\t</thead><tbody>"; 
- fprintf(fp, "%s\n", head); 
- 
-}
-
-void html_add_end(FILE *fp){
-  const char  *end = "\t</tbody>\n</table>\n</body>\n</html>";
-  fprintf(fp, "%s\n", end); 
-}
-
 
 ///////////////////////////////////////////////////////////////////
 

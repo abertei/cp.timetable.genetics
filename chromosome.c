@@ -92,6 +92,7 @@ void delete_new_cromos(Chromosome **cromos, int size){
   }
   free(cromos); 
 }
+
 Chromosome *copy_init(Chromosome * cromo, int setup_only_bool){
   Chromosome *copied_cromo = malloc(sizeof(Chromosome)); 
   if (!copied_cromo) return NULL; 
@@ -449,20 +450,16 @@ void serialize_cromo(Chromosome *c, unsigned char * buffer){
 Chromosome *deserialize_cromo(unsigned char * buffer); 
 
 Chromosome **deserialize_cromos(unsigned char *buffer, unsigned *cr){
-  unsigned n_cromos; 
-  memcpy(&n_cromos, buffer, sizeof(unsigned));
-  *cr = n_cromos; 
+  *cr = * (unsigned *) buffer; 
   buffer += sizeof(unsigned);
-
   int i;
-  Chromosome * *cromos= malloc(sizeof(Chromosome*)  * n_cromos);
+  Chromosome * *cromos= malloc(sizeof(Chromosome*)  * (* cr) );
   if (!cromos) return NULL;
-  for (i=0; i < n_cromos; i++){
+  for (i=0; i < *cr; i++){
     cromos[i] = deserialize_cromo(buffer);
     if (cromos[i] == NULL) return NULL;
     buffer += (size_of_serialized_cromo())  ;
   }
-
   return cromos;
 }
 

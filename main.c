@@ -161,6 +161,13 @@ char * get_path (int argc, char **argv){
   return NULL; 
 }
 
+sargs read_alg_config(argc, argv){
+  sargs args; 
+  args.stop_fitness = 0.8;
+  args.generation_sync_period =100; 
+  return args; 
+}
+
 int main(int argc , char **argv){
   if ((argc != 3 && argc != 4 && argc != 6 && argc != 8  && argc == 4) || get_path(argc,argv) == NULL){
     printf("Usage:\n\t%s [--staff N] [--edu N] [--space N]\n\tYou can specify [] arguments in any order\n", argv[0]); 
@@ -178,6 +185,7 @@ int main(int argc , char **argv){
   }
 
   printf ("Starting %d staff users, %d edu users and %d space users\n", staff_n, edu_n, space_n); 
+
   sleep(3); 
   start_mpi(argc, argv);
   init_entities(); 
@@ -188,7 +196,7 @@ int main(int argc , char **argv){
   int i =0; 
   for (i = 0 ; i < get_threads_created() ; i++){
     pthread_t t = threads_array[i]; 
-    printf("Going to wait for thread %d\n", i); 
+    //printf("Going to wait for thread %d\n", i); 
     if (pthread_join(t, NULL)!=0){
       perror("Waiting for threads: "); 
     } 
@@ -197,15 +205,13 @@ int main(int argc , char **argv){
   finito();
   pthread_t exec; 
   signal(SIGINT, SIG_IGN); 
-  int result = pthread_create(&exec, NULL, start, NULL);
+  sargs alg_config = read_alg_config(argc,argv); 
+  int result = pthread_create(&exec, NULL, start, &alg_config);
   if (result != 0){
     perror("Could not create executor :"); 
     exit(-1);
   }
   pthread_join(exec, NULL); 
-
-  print_best(); 
-  MPI_Finalize();
   return 0; 
 }
 int numprocs, rank, namelen;

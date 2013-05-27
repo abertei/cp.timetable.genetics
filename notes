@@ -4,3 +4,13 @@ Experimentar enviar fitness nos dados vs. calcular fitness dos cromosomes nos no
 The cost of sending the text file vs. the structure. 
 
 
+-> talk about finalization. A Bit of a challenge. Other processes may be blocked waiting synchronization (i.e., receive the best chromosomes from other processes) since the system is partially synchronous (\cite{}). Processes blocked will not be able to end the program if other processes quit. As so it is necessary that quiting processes ASYNCHRONOUSLY send their data that may or not be read by other processes.
+
+
+-> Use Allgatherv in sync algorithm. Check if it is ok. 
+
+-> compile -O2 
+
+-> Difficult solution to demo with smaller size. 
+
+-> É conveniente que a população seja maior do que o espaço (track_best * numeros de processadores) para podermos ter caracteristicas locais. Senão acabam por ser todos iguais e apenas as modificações geneticas é que são diferentes. Por outro lado é conveniente que a população seja o mais best fit possivel. 
