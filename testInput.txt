@@ -29,7 +29,7 @@ add Education group T10 TurmaMSI 25
 add Education class 1 C1 4 LAB T1 T2 T3  
 add Education class 1 C3 2 LECTURE T8 T9 T10
 add Education class 1 C3 4 LECTURE T8 T9 T10 
-add Education class 1 C3 4 LECTURE T8 T9 T10
+//add Education class 1 C3 4 LECTURE T8 T9 T10
 add Education class 2 C2 2 LECTURE T5 T6 T7
 add Education class 2 C3 3 LECTURE T8 T9 T10
 add Education class 3 C1 2 LECTURE T1 
