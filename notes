@@ -14,3 +14,37 @@ The cost of sending the text file vs. the structure.
 -> Difficult solution to demo with smaller size. 
 
 -> É conveniente que a população seja maior do que o espaço (track_best * numeros de processadores) para podermos ter caracteristicas locais. Senão acabam por ser todos iguais e apenas as modificações geneticas é que são diferentes. Por outro lado é conveniente que a população seja o mais best fit possivel. 
+
+
+
+
+----------------
+Teachers/slots 
+
+
+----------------
+Correctness :
+
+So out solution space is represented in the slots array. With mutation eventually some chromosome will distribute all its genes classes in the slot array such that no conflicts occur. 
+
+Same turmas in same time 
+Same teacher in same time 
+Same lab 
+Room capacity 
+
+
+
+--- 
+Make an asymptotic analysis 
+• Present considered parallelization and partitioning strategies 
+• Explain chosen parallelization and partitioning strategy 
+• Present considered implementations with MPI 
+• Explain chosen implementation with MPI 
+• Present hardware and software infrastructure used to run the program 
+• Present profiling results 
+• Discuss profiling results and relation with infrastructure 
+Departamento de Informática da
+Faculdade de Ciências da 
+Universidade de Lisboa 2 
+• Compare profiling results with the expected speedup
+• Elaborate a conclusion

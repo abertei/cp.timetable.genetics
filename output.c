@@ -1,12 +1,15 @@
 #include "output.h"
 #include "array.h"
+#include <string.h>
+
 #include "chromosome.h" 
 
 #include <stdio.h>
 
-void print_class(FILE *fp, Varray *classes, int room);
+void print_class(FILE *fp, Varray *classes, int room, int pos, Chromosome *c);
 void html_add_start(FILE *fp);
 void html_add_end(FILE *); 
+
 
 void print(Chromosome *c, const char *path){
   Chromosome* best =  c; 
@@ -16,7 +19,6 @@ void print(Chromosome *c, const char *path){
     return;
   }
   int day, period, room ; 
-
   html_add_start(fp); 
   int nr = cardHashS(global.rooms);
       for (period = 0 ; period < DAYS_HOURS ; period++){
@@ -27,10 +29,7 @@ void print(Chromosome *c, const char *path){
 	  int pos = day * nr * DAYS_HOURS + room * DAYS_HOURS + period; 
 	  Varray *classes = best->slots[pos].classes_array; 
 	  if (Varray_length(classes) > 0){
-	    if (Varray_length(classes) > 1){
-	      fprintf(fp,"#conflict#"); 
-	    }
-	    print_class(fp,classes, room);
+	    print_class(fp,classes, room, pos, best);
 	    fprintf(fp, "<hr>"); 
 	  }
 	}
@@ -45,7 +44,86 @@ void print(Chromosome *c, const char *path){
 
 void print_students(FILE *, Varray * students);
 
-void print_class(FILE *fp, Varray *classes, int room){
+void open_class(FILE *fp, Chromosome *cromo, Class *c){
+  char phrase[10000] ="";
+  // coordinate of time-space slot
+  int number_of_rooms = cardHashS(global.rooms); 
+  int daySize = DAYS_HOURS * number_of_rooms;
+
+  int *array = cromo->classes_start; 
+  int c_start = array[c->class_id]; 
+  int p = c_start; 
+  int day = p / daySize;
+  int time = p % daySize;
+  int room = time / DAYS_HOURS;
+  char room_str[15]; 
+  sprintf(room_str, "%d", room); 
+  time = time % DAYS_HOURS;
+  int dur = c->periods;		
+
+  // check for room overlapping of classes
+
+  int period;
+  for(period = dur - 1; period >= 0; period-- ){
+    //TODO - varray length semantics? 
+    if( Varray_length(cromo->slots[ p + period ].classes_array) > 1 ){
+      strcat(phrase, "Room overlap."); 
+      break;
+    }
+  }
+  Class* cc = c; 
+  Room* r = (Room *) searchHashS(global.rooms, room_str);
+  // does current room have enough seats
+  if  (r->seats < cc->seats) {
+    strcat(phrase, " Not Enough Seats."); 
+  }
+
+  // does current room have computers if they are required
+  int  b = cc->type != LAB || ( cc->type == LAB && r->type == LAB );
+  if (!b) {
+    strcat(phrase, " Incorrect room type.");
+  }
+  int po = 0, go = 0;
+  int room_index; 
+  int dayt; 
+  // check overlapping of classes for professors and student groups
+  for( room_index = number_of_rooms, dayt = day * daySize + time ;
+       room_index > 0; 
+       room_index--, dayt += DAYS_HOURS ){
+    // for each hour of class
+    int hour; 
+    for( hour = dur - 1; hour >= 0; hour-- ){
+      // check for overlapping with other classes at same time
+      Varray  * cl = cromo->slots[dayt + hour].classes_array; 
+      int indexx;
+      Class *it;
+      for ( indexx = 0, it = Varray_get(cl, indexx) ; indexx < Varray_length(cl) ; indexx++, it = Varray_get(cl, indexx)){
+	if( cc != it ){
+	  // professor overlaps?
+	  if( !po && (strcmp(cc->teacher_id,it->teacher_id) ==0) ){
+	    strcat(phrase," Professor Overlap."); 
+	    break; 
+	  }
+	  // student group overlaps?
+	  if( !go && group_overlap(cc, it )){
+	    strcat(phrase, " Group Overlap."); 
+	    go = 1;
+	  }
+	}
+      }
+    }
+ }
+  if (strlen(phrase) > 0){
+    fprintf(fp, "<p title=\"%s\", style=\"background-color:red;\">", phrase); 
+  }
+  else {
+    fprintf(fp, "<p>"); 
+  }
+}
+
+
+
+void print_class(FILE *fp, Varray *classes, int room, int pos, Chromosome *cromo){
   int i; 
   Class *c; 
   int has_next; 
@@ -55,15 +133,20 @@ void print_class(FILE *fp, Varray *classes, int room){
   Room *r = searchHashS(global.rooms, room_id); 
   for (i = 0 , c = Varray_get(classes,i), has_next = ((i+1) <  Varray_length(classes)) ; 
        i < Varray_length(classes); 
-       i ++ , c = Varray_get(classes,i), has_next = ((i+1) <  Varray_length(classes))){
+       i ++ , c = Varray_get(classes,i), has_next = ((i+1) <  Varray_length(classes))){ 
+    open_class(fp, cromo, c); 
     fprintf(fp,"Class %d ", c->class_id); 
-    fprintf(fp, "with teacher %s for class", c->teacher_id); 
+    fprintf(fp, "with teacher %s for group (%d): ", c->teacher_id, c->seats); 
     print_students(fp,c->students); 
-    fprintf(fp, " @  %s", r->idd); 
-    if (has_next){
-      fprintf(fp, " # "); 
+    Room *rrr=    searchHashS(global.rooms, r->id); 
+    if (rrr != NULL) {
+      fprintf(fp, " @  %s (%d)", r->idd, rrr->seats); 
+    }
+    else{
+      fprintf(fp, " @  %s", r->idd); 
     }
   }
+  fprintf(fp, "</p>"); 
 }
 
 void print_students(FILE *fp, Varray * students){

@@ -22,14 +22,8 @@ unsigned track_best;
 int replace_by_generation; 
 Chromosome *prototype; 
 void add_to_best(int index); 
-
 #include <signal.h>
-
-
-
 void print_best(); 
-
-
 int init_population(unsigned chromosomes_size_, int replace_by_generation_,unsigned track_best_, 
 	Chromosome* prototype_
 	){
@@ -57,12 +51,12 @@ int init_population(unsigned chromosomes_size_, int replace_by_generation_,unsig
   }
 
   chromosomes = malloc(sizeof(Chromosome*) * chromosomes_size); 
-  if (!chromosomes) return -1; 
+  if (!chromosomes) quitp(); 
   best_flags = calloc(chromosomes_size,sizeof(int) ); 
-  if (!best_flags) return -1; 
+  if (!best_flags) quitp();
 
   best_chromosomes = malloc(sizeof(int) * track_best); 
-  if (!best_chromosomes) return -1; 
+  if (!best_chromosomes) quitp(); 
 
   int i; 
   for ( i = 0 ; i < chromosomes_size ; i++){
@@ -135,8 +129,22 @@ int stop(float fitness_stop){
 void init_random(){
   int v = (int) time(NULL) + (rank+1)*1000; 
   unsigned vv = MurmurHash2(&v, (rank+1)*100, (rank+1)*1000 ); 
+  /* switch(rank){ */
+  /* case 0:  */
+  /*   vv = 1404674042U;  */
+  /*   break; */
+  /* case 1: */
+  /*   vv= 2749416652U;  */
+  /*   break; */
+  /* case 2: */
+  /*   vv = 1851252467U;  */
+  /*   break;  */
+  /* case 3: */
+  /*   vv = 2587662629U;  */
+  /*   break;  */
+  /* } */
   srand(vv); 
-  printf("%u\n", vv); 
+  printf("%d - %u\n", rank, vv); 
 }
 
 void init_processes(){
@@ -167,10 +175,10 @@ void add_received_cromos_to_population(Chromosome **new_cromos, int size){
       add_to_best(not_best_i);
     }
   }
-  printf("Process %d - add %f\n", rank,max); 
+  //printf("Process %d - add %f\n", rank,max); 
 }
 
-void slave_check_stop(void *data, int size){
+void slave_check_stop(void *data, int size, int bench){
   int sum = 0;
   int i; 
   unsigned char *array = data;
@@ -178,18 +186,20 @@ void slave_check_stop(void *data, int size){
     sum +=  array[i];
     if (sum != 0 ) return ;
   }
-  printf("(end) -  Process %d received end signal from master.\n", rank); 
+  if (!bench)
+    printf("(end) -  Process %d received end signal from master.\n", rank); 
   fflush(stdout);
   MPI_Finalize(); 
   exit(0); 
 }
 
-void sync_period(int master_stop){
+void sync_period(int master_stop, int bench){
   int  size_send_data;
   int ps;  MPI_Comm_size(WORLD, &ps);  
   void *data = serialize_cromos(track_best, best_chromosomes, chromosomes, &size_send_data); 
   if (master_stop){
-    printf("master sending signal\n"); 
+    if (!bench)
+      printf("master sending signal\n"); 
     //master process sends "sign" to others.. hey we stop .. go home
     memset(data, 0, size_send_data); 
   }
@@ -198,24 +208,25 @@ void sync_period(int master_stop){
 
   if (rank != 0){
     //slave processes for sure. Must listen to sign 
-    slave_check_stop(recv_buffer, size_send_data);
+    slave_check_stop(recv_buffer, size_send_data,bench);
   }
-  free(data); 
+
   unsigned received_cromos; 
   unsigned process_index =0; 
   unsigned char *rcv_buffer_ptr = recv_buffer;  
-
   for (process_index= 0; process_index < ps ; process_index++){
     if (process_index != rank) { 
       Chromosome **new_cromos = deserialize_cromos(rcv_buffer_ptr, &received_cromos);
       add_received_cromos_to_population(new_cromos, received_cromos); 
-      rcv_buffer_ptr += size_send_data; 
       delete_new_cromos(new_cromos, received_cromos);
     }
+   rcv_buffer_ptr += size_send_data; 
   }
   free(recv_buffer);
+  free(data); 
   Chromosome *best = chromosomes[best_chromosomes[0]]; 
-  printf("(update) - Process %d current generation - after exchange: %d. Best fitness :%f\n", rank, current_generation, best->fitness  );
+  if (!bench)
+    printf("(update) - Process %d current generation - after exchange: %d. Best fitness :%f\n", rank, current_generation, best->fitness  );
 }
 
 void next_generation(){
@@ -244,48 +255,85 @@ void next_generation(){
   current_generation++;
 }
 
-void end_algorithm(int stop_value){
+void end_algorithm(int stop_value, int bench){
   if (rank == 0){
     //Master finished (do not care why). Send signal to everyone. 
-    sync_period(1); 
+    sync_period(1,bench); 
     if (stop_value == REACHED_CRITERIA){
-      printf(" Reached criteria\n"); 
+      if (!bench)
+	printf(" Reached criteria\n"); 
     }
     else{
-      printf("User stop'd execution\n"); 
+      if (!bench)
+	printf("User stop'd execution\n"); 
     }
   }
 }
 
-void *start(void *args){
-  float stop_fitness = ((sargs *) args)->stop_fitness; 
-  int generation_sync_period = ((sargs *)args)->generation_sync_period; 
+#include <sys/time.h>
+#include <sys/resource.h>
 
+double get_time()
+{
+    struct timeval t;
+    struct timezone tzp;
+    gettimeofday(&t, &tzp);
+    return t.tv_sec + t.tv_usec*1e-6;
+}
+
+void *start(void *args){
+  sargs *config = (sargs *) args; 
+  const float stop_fit = config->stop_fitness; 
+  const int interval = config->generation_sync_period; 
+  const int ps = config->p; 
+  const int bench = config->benchmarking;
   init_processes(); 
   if (rank == 0){
-    printf("Executor is starting . Hit ^C to terminate (Output generated then...)\n");
-    printf("(config) - Stop fitness : %f\n", stop_fitness); 
-    printf("(config) - Generation Sync Period : %d\n", generation_sync_period); 
+    printf("Executor is starting . Enter the string stop to terminate (Output generated then...)\n");
+    //printf("(config) - Stop fitness : %f\n", config->stop_fitness); 
+    //printf("(config) - Generation Sync Period : %d\n", config->generation_sync_period); 
   }
 
-  prototype = init(2,2,80,3); 
+  prototype = init(config->crossover_points, 
+		   config->mutation_size, 
+		   config->crossover_probability,
+		   config->mutation_probability); 
+		   
   if (!prototype)  quitp(); 
-
-  if (init_population(1000,20,10,prototype) <0) quitp(); 
-
+  init_population(
+		      config->population,
+		      config->replace_by_generation,
+		      config->track_best, prototype); 
   current_generation = 0;
-  
   int stop_value; 
-  while(! (stop_value = stop(stop_fitness))){  
-    if ((current_generation % generation_sync_period) == 0 ){ 
-      printf("(update) - Process %d current generation: %d. Best fitness :%f\n", rank, current_generation, best_fit());
-	sync_period(0);
+  double start_time; 
+
+  if (bench && rank ==0){
+    start_time =  get_time(); 
+  }
+
+  while(! (stop_value = stop(stop_fit))){  
+    if ((current_generation % interval) == 0 ){
+      if (!bench) printf("(update) - Process %d current generation: %d. Best fitness :%f\n", rank, current_generation, best_fit());
+      if (ps > 1) {
+	sync_period(0,bench);
+      }
      }
     next_generation(); 
   }
-  end_algorithm(stop_value); 
+  if (bench && rank ==0 ){
+    printf("{%d,%f,", config->p, get_time() - start_time);
+  }
+  if (ps > 1){
+    end_algorithm(stop_value,bench); 
+  }
+  if (bench){
+    printf("%f,}, // %f\n",get_time() - start_time, best_fit());
+  }
   //Only the master should get here. 
-  printf("Going to print best chromo for file. Fitness: %f ; Generations : %d\n", best_fit(), current_generation); 
+  if (!bench){
+    printf("Going to print best chromo for file. Fitness: %f ; Generations : %d\n", best_fit(), current_generation); 
+  }
   print(get_best(), "./out.html"); 
   MPI_Finalize(); 
   return NULL; 

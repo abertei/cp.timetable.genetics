@@ -5,10 +5,8 @@
 #include "hash.h"
 #include "entities.h"
 #include "array.h"
-
+#include "main.h"
 #define SEED_HASH 1337
-
-
 
 //TODO - set slot and hash foo right
 int slot_cmp_foo(const void *v1, const void *v2){
@@ -21,15 +19,21 @@ unsigned slot_hash_foo(const void *k, unsigned m){
   return (unsigned) MurmurHash2(k, strlen(k), SEED_HASH)  % m ;
 }
 
-const int crossover_points=20; 
-const int mutation_size=100; 
-const int crossover_probability=90; 
-const int mutation_probability=10; 
+int crossover_points=20; 
+int mutation_size=100; 
+int crossover_probability=90; 
+int mutation_probability=10; 
 
 // Initializes chromosomes with configuration block (setup of chromosome)
 Chromosome * init(int numberOfCrossoverPoints, int mutationSize,
 		  int crossoverProbability, int mutationProbability){
 
+  int class_size = Varray_length(global.classes);
+  crossover_points= numberOfCrossoverPoints >= class_size ? class_size : numberOfCrossoverPoints; 
+ mutation_size = mutationSize; 
+ crossover_probability=crossoverProbability; 
+ mutation_probability=mutationProbability; 
+  
   Chromosome *cromo = malloc(sizeof(Chromosome)); 
   if (!cromo) return NULL; 
 
@@ -48,10 +52,9 @@ Chromosome * init(int numberOfCrossoverPoints, int mutationSize,
   //Init hash tables; 
   cromo->classes_start = calloc(Varray_length(global.classes), sizeof(int));
   if (!cromo->classes_start) return NULL; 
-  
   return cromo; 
 }
-#include "main.h"
+
 Chromosome *clone_deserialized(Chromosome *c){
   Chromosome *nc = malloc(sizeof(Chromosome)); 
   if (!c) quitp(); 
@@ -82,7 +85,6 @@ Chromosome *clone_deserialized(Chromosome *c){
   }
   return nc; 
 }
-
 
 void delete_new_cromos(Chromosome **cromos, int size){
   int i; 
@@ -206,7 +208,6 @@ Chromosome *crossover( Chromosome *p1, Chromosome *p2){
   // determine crossover point (randomly)
   for(i = crossover_points; i > 0; i-- ){
     while( 1 ){
-
       int p = rand() % size;
       if( !cp[ p ] ){
 	cp[ p ] = 1;
@@ -268,7 +269,8 @@ void evaluate_fitness_of_chromosome(Chromosome *cromo){
 		sprintf(room_str, "%d", room); 
 		time = time % DAYS_HOURS;
 		int dur = c->periods;		
-		// check for room overlapping of classes
+	
+	// check for room overlapping of classes
 		int ro = 0;
 		int period;
 		for(period = dur - 1; period >= 0; period-- ){

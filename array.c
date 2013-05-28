@@ -66,8 +66,8 @@ Varray_free(Varray *array)
 {
   lock_foo(array); 
    free(array->memory);
-   free(array);
    unlock_foo(array); 
+   free(array);
 }
  
 void*

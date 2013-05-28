@@ -9,10 +9,11 @@ add Staff teacher 8 Quyn
 add Education course C1 MEI
 add Education course C2 MI
 add Education course C3 MSI 
-add Spaces room R1 LAB 20 
-add Spaces room R2 LAB 30 
-add Spaces room R3 LECTURE 100
-add Spaces room R4 LECTURE 50
+add Spaces room R1 LAB 100 
+add Spaces room R2 LAB 60
+add Spaces room R2 LAB 200
+add Spaces room R3 LECTURE 200
+add Spaces room R4 LECTURE 90
 add Spaces room R5 LECTURE 70
 add Spaces room R6 LECTURE 150
 add Education group T1 TurmaMEI 60
@@ -25,24 +26,24 @@ add Education group T7 TurmaMI 29
 add Education group T8 TurmaMSI 19
 add Education group T9 TurmaMSI 33
 add Education group T10 TurmaMSI 25
-add Education class 1 C1 4 LAB T1 T2 T3 
-add Education class 5 C1 2 LAB T1 T2 T3 
-add Education class 3 C1 2 LAB T1 T2 T3 
-add Education class 7 C1 3 LAB T1 T2 T3 
-add Education class 8 C1 3 LECTURE T1 T2 T3 
-add Education class 4 C2 3 LECTURE T5 T6 T7
-add Education class 6 C2 3 LECTURE T5 T6 T7
-add Education class 2 C2 2 LECTURE T5 T6 T7
-add Education class 6 C2 4 LECTURE T5 T6 T7
-add Education class 8 C2 4 LECTURE T5 T6 T7
+add Education class 1 C1 4 LAB T1 T2 T3  
 add Education class 1 C3 2 LECTURE T8 T9 T10
-add Education class 3 C3 3 LECTURE T8 T9 T10
 add Education class 1 C3 4 LECTURE T8 T9 T10 
-add Education class 8 C3 4 LECTURE T8 T9 T10
 add Education class 1 C3 4 LECTURE T8 T9 T10
-add Education class 4 C1 2 LECTURE T1 
-add Education class 4 C1 2 LECTURE T2
-add Education class 4 C1 2 LAB T2
+add Education class 2 C2 2 LECTURE T5 T6 T7
+add Education class 2 C3 3 LECTURE T8 T9 T10
 add Education class 3 C1 2 LECTURE T1 
 add Education class 3 C1 2 LECTURE T2
 add Education class 3 C1 2 LAB T2
+add Education class 3 C1 2 LAB T1 T2 T3 
+add Education class 4 C1 2 LECTURE T1 
+add Education class 4 C1 2 LECTURE T2
+add Education class 4 C2 3 LECTURE T5 T6 T7
+add Education class 4 C1 2 LAB T2
+add Education class 5 C1 2 LAB T1 T2 T3 
+add Education class 6 C2 4 LECTURE T5 T6 T7
+add Education class 6 C2 3 LECTURE T5 T6 T7
+add Education class 7 C1 3 LAB T1 T2 T3 
+add Education class 8 C2 4 LECTURE T5 T6 T7
+add Education class 8 C3 4 LECTURE T8 T9 T10
+add Education class 8 C1 3 LECTURE T1 T2 T3 
